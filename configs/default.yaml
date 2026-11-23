@@ -2,19 +2,19 @@
 # fixed after running `gulfeval inspect` without touching code.
 run_name: pilot
 dataset:
-  hf_name: MBZUAI/DialectalArabicMMLU
+  hf_name: MBZUAI/Dialectal-Arabic-MMLU
   # Layout A: one HF config per variant -> fill `variant_configs`.
   # Layout B: a single table with a column naming the variant -> set `variant_column`.
-  variant_column: null
-  variant_configs: {}            # e.g. {MSA: MSA, UAE: UAE, ENG: ENG} -- verify with `gulfeval inspect`
+  variant_column: dialect
+  variant_configs: {}
   split: test
-  columns:
-    id: id                       # key that matches the SAME question across variants
-    subject: subject
+  columns:                       # verified against the dataset card (single config, single `test` split)
+    id: [domain, qid]            # qid is unique only WITHIN a domain, so the pair identifies a question
+    subject: domain
     question: question
-    choices: null                # a single list column, OR ...
-    choices_columns: [A, B, C, D]  # ... one column per option
-    answer: answer               # index (0-based) or a letter
+    choices: choices             # list of 4 strings
+    choices_columns: null
+    answer: answer               # 0-based index
 variants: [ENG, MSA, UAE, KSA, EGY, SYR, MAG]
 reference_variant: MSA           # flips are measured against this variant
 health_subjects:                 # matched by normalised substring against the subject column

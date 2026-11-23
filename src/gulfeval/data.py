@@ -32,9 +32,10 @@ def _rows_from_table(df: pd.DataFrame, variant: str, cols: dict) -> list[dict]:
         else:
             choices = [rec[c] for c in cols["choices_columns"] if c in rec and rec[c] is not None
                        and str(rec[c]) != "nan"]
+        idc = cols["id"] if isinstance(cols["id"], list) else [cols["id"]]
         rows.append(
             dict(
-                qid=str(rec[cols["id"]]),
+                qid="|".join(str(rec[c]) for c in idc),
                 variant=variant,
                 subject=str(rec.get(cols["subject"], "")),
                 question=str(rec[cols["question"]]),
@@ -53,6 +54,11 @@ def load_hf(cfg: dict) -> pd.DataFrame:
     frames: list[pd.DataFrame] = []
     if d.get("variant_column"):
         ds = load_dataset(d["hf_name"], split=d["split"]).to_pandas()
+        found = sorted(ds[d["variant_column"]].unique())
+        print(f"variant values in dataset: {found}")
+        missing = [v for v in cfg["variants"] if v not in found]
+        if missing:
+            raise SystemExit(f"Variants {missing} not found. Edit `variants` in the config to match: {found}")
         for v in cfg["variants"]:
             sub = ds[ds[d["variant_column"]] == v]
             frames.append(pd.DataFrame(_rows_from_table(sub, v, cols)))

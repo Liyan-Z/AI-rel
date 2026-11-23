@@ -22,8 +22,11 @@ dialects. What this repo adds:
 ## Status
 
 - Pipeline, statistics and tests are done and pass on synthetic data (`pytest`).
-- **Not yet run on the real dataset.** The loader's column names are placeholders until you run `gulfeval inspect`
-  once and fill in `configs/default.yaml`. No results are reported here yet, and none should be until a real run exists.
+- Config matches the dataset card for
+  [`MBZUAI/Dialectal-Arabic-MMLU`](https://huggingface.co/datasets/MBZUAI/Dialectal-Arabic-MMLU) (CC BY 4.0): columns
+  `dialect`, `qid`, `domain`, `question`, `choices`, `answer`. `qid` repeats across domains, so questions are keyed by
+  `domain|qid`.
+- **Not yet run on the real dataset.** No results are reported here, and none should be until a real run exists.
 
 ## Quick start
 
@@ -31,8 +34,7 @@ dialects. What this repo adds:
 pip install -e ".[anthropic]"        # or ".[openai]" / ".[hf]" for a local open model
 gulfeval run --synthetic             # fake data + fake model: checks the plumbing, costs nothing
 
-gulfeval inspect                     # prints the real dataset's configs/columns -> edit configs/default.yaml
-gulfeval validate                    # confirms the same question lines up across all variants
+gulfeval validate                    # downloads the data; confirms each question lines up across all 7 variants
 export ANTHROPIC_API_KEY=...         # (or OPENAI_API_KEY)
 gulfeval run                         # resumable; predictions cached in results/<run_name>/
 gulfeval report                      # rebuild tables + figure from cached predictions
@@ -57,6 +59,10 @@ Free option: run it in Google Colab with `backend: hf` and a small open Arabic-c
 - MMLU questions may appear in model training data. This affects all variants of a question alike, so paired
   comparisons remain valid, but absolute accuracy may be inflated.
 - Results are for one model and one prompt format until more are added.
+- An independent audit (IFM, on Hugging Face) removed ~6% of this benchmark's samples as problematic, mostly gold-label
+  issues. Treat the pipeline's results as provisional until re-checked on that verified subset.
+- Very strong models score near ceiling on this benchmark, which shrinks any dialect gap. Smaller or open models will
+  show the effect more clearly.
 
 ## Roadmap
 

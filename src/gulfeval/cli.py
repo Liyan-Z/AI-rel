@@ -42,6 +42,7 @@ def main(argv=None) -> None:
     out = run.run_dir(cfg)
     if a.cmd == "run":
         sub_df = data.select_subset(df, cfg)
+        print("subjects included:", sorted(sub_df.subject.unique()))
         print(f"running {sub_df.qid.nunique()} questions x {sub_df.variant.nunique()} variants "
               f"x {cfg['run']['repeats']} repeat(s)")
         preds = run.run_experiment(cfg, sub_df)

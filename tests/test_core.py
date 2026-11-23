@@ -59,3 +59,16 @@ def test_end_to_end_mock(tmp_path, monkeypatch):
     gaps = stats.paired_vs_reference(preds, "MSA", 500)
     # the mock is built to do worse on dialects than on MSA
     assert (gaps[gaps.variant == "UAE"].gap_vs_ref.iloc[0]) < 0
+
+
+def test_composite_id_and_array_choices():
+    import numpy as np
+
+    cols = CFG["dataset"]["columns"]
+    df = pd.DataFrame([
+        dict(dialect="UAE", domain="anatomy", qid=3, question="q", choices=np.array(list("wxyz")), answer=2),
+        dict(dialect="UAE", domain="virology", qid=3, question="q", choices=np.array(list("wxyz")), answer=1),
+    ])
+    rows = data._rows_from_table(df, "UAE", cols)
+    assert rows[0]["qid"] == "anatomy|3" and rows[1]["qid"] == "virology|3"
+    assert rows[0]["choices"] == list("wxyz") and rows[0]["answer"] == 2

@@ -1,6 +1,7 @@
 # GulfEval default experiment config. Everything dataset-specific lives here so it can be
 # fixed after running `gulfeval inspect` without touching code.
 run_name: pilot
+results_root: results   # on Colab set to a Google Drive folder so nothing is lost when the session ends
 dataset:
   hf_name: MBZUAI/Dialectal-Arabic-MMLU
   # Layout A: one HF config per variant -> fill `variant_configs`.

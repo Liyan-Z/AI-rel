@@ -84,3 +84,20 @@ def test_overrides_and_random_limit():
     sub = data.select_subset(df, cfg)
     assert sub.qid.nunique() == 10
     assert len(set(sub.subject)) > 1  # random sample spans subjects, not just the first alphabetically
+
+
+def test_results_root_and_resume(tmp_path):
+    from gulfeval import run
+
+    cfg = yaml.safe_load(open("configs/default.yaml"))
+    cfg.update(run_name="r", results_root=str(tmp_path / "drive"))
+    cfg["run"].update(subset="all", workers=1)
+    df = make_synthetic(cfg, n=10)
+    first = run.run_experiment(cfg, df)
+    assert (tmp_path / "drive" / "r" / "predictions.jsonl").exists()
+    # simulate a crash: drop the last 7 lines, then rerun; only the missing ones are recomputed
+    f = tmp_path / "drive" / "r" / "predictions.jsonl"
+    lines = f.read_text().splitlines()
+    f.write_text("\n".join(lines[:-7]) + "\n")
+    again = run.run_experiment(cfg, df)
+    assert len(again) == len(first)

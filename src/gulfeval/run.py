@@ -13,7 +13,7 @@ from .prompts import build_prompt
 
 
 def run_dir(cfg: dict) -> Path:
-    p = Path("results") / cfg["run_name"]
+    p = Path(cfg.get("results_root", "results")) / cfg["run_name"]
     p.mkdir(parents=True, exist_ok=True)
     return p
 
@@ -53,7 +53,7 @@ def run_experiment(cfg: dict, df: pd.DataFrame) -> pd.DataFrame:
         for i, r in enumerate(ex.map(work, jobs), 1):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
             done[_key(r)] = r
+            f.flush()  # every prediction is on disk immediately: a crash loses at most one
             if i % 200 == 0:
-                f.flush()
                 print(f"  {i}/{len(jobs)} new predictions")
     return pd.DataFrame(done.values())

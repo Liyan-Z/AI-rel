@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gulfeval"
+version = "0.1.0"
+description = "Does an AI model answer differently when the same question is asked in an Arabic dialect instead of MSA or English?"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pandas", "matplotlib", "pyyaml", "datasets", "tabulate"]
+
+[project.optional-dependencies]
+anthropic = ["anthropic"]
+openai = ["openai"]
+hf = ["transformers", "torch", "accelerate"]
+dev = ["pytest"]
+
+[project.scripts]
+gulfeval = "gulfeval.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

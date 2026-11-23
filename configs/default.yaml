@@ -1,0 +1,46 @@
+# GulfEval default experiment config. Everything dataset-specific lives here so it can be
+# fixed after running `gulfeval inspect` without touching code.
+run_name: pilot
+dataset:
+  hf_name: MBZUAI/DialectalArabicMMLU
+  # Layout A: one HF config per variant -> fill `variant_configs`.
+  # Layout B: a single table with a column naming the variant -> set `variant_column`.
+  variant_column: null
+  variant_configs: {}            # e.g. {MSA: MSA, UAE: UAE, ENG: ENG} -- verify with `gulfeval inspect`
+  split: test
+  columns:
+    id: id                       # key that matches the SAME question across variants
+    subject: subject
+    question: question
+    choices: null                # a single list column, OR ...
+    choices_columns: [A, B, C, D]  # ... one column per option
+    answer: answer               # index (0-based) or a letter
+variants: [ENG, MSA, UAE, KSA, EGY, SYR, MAG]
+reference_variant: MSA           # flips are measured against this variant
+health_subjects:                 # matched by normalised substring against the subject column
+  - anatomy
+  - clinical knowledge
+  - college biology
+  - college medicine
+  - high school biology
+  - medical genetics
+  - nutrition
+  - professional medicine
+  - virology
+  - human aging
+model:
+  backend: mock                  # mock | anthropic | openai | hf
+  name: mock-model
+  temperature: 0.0
+  max_tokens: 8
+prompt:
+  instruction_language: en       # keep fixed across variants so only the question text varies
+  option_labels: [A, B, C, D, E]
+run:
+  subset: health                 # health | all
+  limit_per_variant: null        # set e.g. 200 for a cheap smoke test
+  repeats: 1                     # >=2 on the health slice gives a sampling-noise baseline
+  workers: 8
+  seed: 0
+stats:
+  bootstrap_samples: 10000

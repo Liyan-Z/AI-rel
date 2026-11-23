@@ -1,0 +1,8 @@
+__pycache__/
+*.egg-info/
+.venv/
+.env
+.pytest_cache/
+# raw prediction caches are large; keep summaries, not raw logs, unless you choose to commit them
+results/*/predictions.jsonl
+!results/.gitkeep

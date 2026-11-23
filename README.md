@@ -14,7 +14,8 @@ dialects. What this repo adds:
 |---|---|
 | **Paired analysis** on the *same* question across variants (McNemar, paired bootstrap CIs) | Removes question-difficulty noise from the dialect comparison |
 | **Answer-flip rate** vs MSA, not just accuracy | Accuracy can be equal while many individual answers change |
-| **Sampling-noise baseline** (repeat runs of the same variant) | Separates dialect-caused flips from ordinary run-to-run randomness |
+| **Answer-agreement baseline** (flip rate vs the rate expected if answers were independent) | A 40% flip rate sounds alarming but is meaningless without knowing what chance would give |
+| **Sampling-noise baseline** (repeat runs, temperature > 0 only) | Separates dialect-caused flips from run-to-run randomness; uninformative at temperature 0 |
 | **Health & biology slice** as the headline | Whether a learner can trust an AI tutor in their own dialect on health topics |
 | **Gulf (UAE, KSA) vs other dialects as controls** | Distinguishes a Gulf-specific effect from a general "non-MSA" penalty |
 | **Parse-failure tracking** per variant | Stops a formatting artifact being mistaken for a dialect effect |

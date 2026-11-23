@@ -68,14 +68,21 @@ def paired_vs_reference(preds: pd.DataFrame, ref: str, n_boot: int = 10000) -> p
         lo, hi = paired_bootstrap(diff, n_boot)
         both = wide_p[[ref, v]].dropna()
         flip = float((both[ref] != both[v]).mean())
+        # Flip rate expected if the two versions' answers were statistically independent, given each
+        # version's letter distribution. Observed < expected means answers agree more than chance.
+        pr = both[ref].value_counts(normalize=True)
+        pv = both[v].value_counts(normalize=True)
+        exp_flip = float(1 - sum(pr.get(k, 0) * pv.get(k, 0) for k in set(pr.index) | set(pv.index)))
         rows.append(dict(variant=v, n=len(ok), gap_vs_ref=float(diff.mean()), ci_low=lo, ci_high=hi,
                          mcnemar_p=mcnemar_exact(b, c), only_ref_right=c, only_variant_right=b,
-                         answer_flip_rate=flip))
+                         answer_flip_rate=flip, expected_flip_if_independent=exp_flip,
+                         consistency_lift=exp_flip - flip))
     return pd.DataFrame(rows).sort_values("gap_vs_ref").reset_index(drop=True)
 
 
 def noise_baseline(preds: pd.DataFrame) -> pd.DataFrame | None:
-    """Flip rate between repeat 0 and repeat 1 of the SAME variant: the floor for 'answers changed'."""
+    """Flip rate between repeat 0 and repeat 1 of the SAME variant. Only informative at temperature > 0:
+    greedy decoding (temperature 0) is near-deterministic, so this will be ~0 and says nothing."""
     if preds.repeat.max() < 1:
         return None
     a = preds[preds.repeat == 0].set_index(["qid", "variant"]).pred

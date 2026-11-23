@@ -133,6 +133,9 @@ def select_subset(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
             raise ValueError("Health filter matched nothing; check subject names with `gulfeval inspect`.")
     lim = cfg["run"].get("limit_per_variant")
     if lim:
-        keep = sorted(df.qid.unique())[: int(lim)]
+        import random
+
+        ids = sorted(df.qid.unique())
+        keep = set(random.Random(cfg["run"].get("seed", 0)).sample(ids, min(int(lim), len(ids))))
         df = df[df.qid.isin(keep)]
     return df.reset_index(drop=True)

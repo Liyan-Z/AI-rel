@@ -12,16 +12,29 @@ def _cfg(path: str) -> dict:
     return yaml.safe_load(Path(path).read_text())
 
 
+def _apply_overrides(cfg: dict, sets: list[str]) -> None:
+    """--set run.limit_per_variant=150 model.backend=hf  (values parsed as YAML)."""
+    for item in sets or []:
+        key, _, val = item.partition("=")
+        node = cfg
+        parts = key.split(".")
+        for k in parts[:-1]:
+            node = node[k]
+        node[parts[-1]] = yaml.safe_load(val)
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="gulfeval")
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("inspect", "validate", "run", "report"):
         p = sub.add_parser(name)
         p.add_argument("--config", default="configs/default.yaml")
+        p.add_argument("--set", nargs="*", default=[], metavar="KEY=VALUE", help="override config values")
         if name == "run":
             p.add_argument("--synthetic", action="store_true", help="use a fake dataset + mock model (no downloads)")
     a = ap.parse_args(argv)
     cfg = _cfg(a.config)
+    _apply_overrides(cfg, a.set)
 
     if a.cmd == "inspect":
         print(data.inspect_hf(cfg["dataset"]["hf_name"]))

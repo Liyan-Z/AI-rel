@@ -72,3 +72,15 @@ def test_composite_id_and_array_choices():
     rows = data._rows_from_table(df, "UAE", cols)
     assert rows[0]["qid"] == "anatomy|3" and rows[1]["qid"] == "virology|3"
     assert rows[0]["choices"] == list("wxyz") and rows[0]["answer"] == 2
+
+
+def test_overrides_and_random_limit():
+    from gulfeval.cli import _apply_overrides
+
+    cfg = yaml.safe_load(open("configs/default.yaml"))
+    _apply_overrides(cfg, ["run.limit_per_variant=10", "model.backend=hf", "model.name=org/some-model"])
+    assert cfg["run"]["limit_per_variant"] == 10 and cfg["model"]["backend"] == "hf"
+    df = make_synthetic(cfg, n=80)
+    sub = data.select_subset(df, cfg)
+    assert sub.qid.nunique() == 10
+    assert len(set(sub.subject)) > 1  # random sample spans subjects, not just the first alphabetically
